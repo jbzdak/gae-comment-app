@@ -7,6 +7,8 @@ from google.appengine.ext import ndb
 
 from comments.db import Comment, Site, Commenter
 
+from google.appengine.api import users
+
 
 class APIException(Exception):
 
@@ -90,17 +92,52 @@ class SiteService(object):
 
     @staticmethod
     def sites_by_user(user):
-        return Site.query(Site.owner == user).fetch()
+        return Site.query(Site.owner == user or Site.admins == user).fetch()
 
 
 class CommentService(object):
 
+    @staticmethod
+    def create_comment_serializer(serialize_key = False):
+        def comment_serializer(obj):
+            if not isinstance(obj, Comment):
+                raise TypeError()
+            data = {
+                "content": obj.content,
+                "username": obj.username,
+                "state": obj.state,
+                "site": obj.site.get().siteurl,
+                "date": obj.date.isoformat()
+            }
+            if serialize_key:
+                data['key'] = obj.key
+            return data
 
+    @classmethod
+    def validate_can_update_comment(cls, comment):
+        site = comment.site.get()
+        if users.is_current_user_admin():
+            return
+        if not site in SiteService.sites_by_user(users.get_current_user()):
+            raise CommenterError("401", "Not authorized")
+
+    @classmethod
+    def update_comment_contents(cls, comment, new_contents):
+        cls.validate_can_update_comment(comment)
+        comment.content = new_contents
+        comment.put()
+
+
+    @classmethod
+    def update_comment_state(cls, comment, new_state):
+        cls.validate_can_update_comment(comment)
+        comment.state = new_state
+        comment.put()
 
     @staticmethod
-    def filter_posts(url, site, state, user):
+    def filter_posts(url=None, site=None, state=None, user=None):
 
-        query = Site.query()
+        query = Comment.query()
 
         if site:
             if not isinstance(site, Site):

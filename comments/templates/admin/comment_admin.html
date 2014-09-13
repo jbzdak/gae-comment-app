@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+    <table>
+        <thead>
+        <tr>
+            <td>
+                Site:
+            </td>
+            <td>
+                Path:
+            </td>
+            <td>
+                User:
+            </td>
+            <td>
+                Content:
+            </td>
+            <td>
+                State:
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for c in comments %}
+            <tr>
+                <td>
+                    {{ c.site.get().siteurl }}
+                </td>
+                <td>
+                    <a href="/{{ c.full_url }}">{{ c.url }}</a>
+                </td>
+                <td>
+                    {{ c.username }}
+                </td>
+                <td>
+                    <form method="post">
+                        <textarea name="comment">{{ c.content }}</textarea>
+                        <input type="hidden" value="content" name="action">
+                        <input type="hidden" value="{{ c.key.urlsafe() }}" name="key">
+                        <input type="submit" value="Update content">
+                    </form>
+                </td>
+                <td>
+                    {% if c.state in ['DECLINED', 'UNDECIDED'] %}
+                        <form method="post">
+                            <input type="hidden" name="action" value="set-state">
+                            <input type="hidden" value="{{ c.key.urlsafe() }}" name="key">
+                            <input type="hidden" name="new-state" value="APPROVED">
+                            <input type="submit" value="Approve">
+                        </form>
+                    {% endif %}
+                    {% if c.state in ['APPROVED', 'UNDECIDED'] %}
+                        <form method="post">
+                            <input type="hidden" name="action" value="set-state">
+                            <input type="hidden" value="{{ c.key.urlsafe() }}" name="key">
+                            <input type="hidden" name="new-state" value="DECLINED">
+                            <input type="submit" value="Decline">
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

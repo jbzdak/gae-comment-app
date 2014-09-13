@@ -8,6 +8,7 @@ class Site(ndb.Model):
     siteurl = ndb.StringProperty()
     sitename = ndb.TextProperty()
     owner = ndb.UserProperty(auto_current_user_add=True)
+    admins = ndb.UserProperty(repeated=True)
 
 
 class Commenter(ndb.Model):
@@ -24,8 +25,11 @@ class Comment(ndb.Model):
     COMMENT_STATE = ("DECLINED", "UNDECIDED", "APPROVED")
 
     content = ndb.TextProperty()
+    #TODO: Change username to e-mail
     username = ndb.StringProperty()
     url = ndb.StringProperty()
+
+    full_url = ndb.TextProperty()
 
     state = ndb.StringProperty(choices=COMMENT_STATE, default=COMMENT_STATE[1])
 

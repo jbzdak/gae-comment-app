@@ -22,15 +22,17 @@ import webapp2
 debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
 
 from comments import handlers
+from comments import admin_handlers
 
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello world!')
 
-routes=[
+routes = [
     ('/', MainHandler),
-    ('/comment/', handlers.PostCommentRefferer)
+    ('/comment/', handlers.PostCommentRefferer),
+    ('/admin/comment', admin_handlers.CommentAdmin)
 ]
 
 if debug:
