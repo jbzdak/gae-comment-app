@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
 from urlparse import urlparse
-from comments.services import CommentService, PostCommentException
+from comments.db import Site
+from comments.services import CommentService, PostCommentException, SiteService, \
+    NoSuchSiteException
 
 import jinja2
 import webapp2
-
 
 
 from env_utils import get_enviorment
@@ -37,7 +38,7 @@ class PostCommentRefferer(webapp2.RequestHandler):
         json_comments = [
             {
                 "content": c.content,
-                "username": c.username,
+                "user_e_mail": c.username,
                 "date": c.date.isoformat()
             }
             for c in comments
@@ -58,10 +59,12 @@ class PostCommentRefferer(webapp2.RequestHandler):
         post = self.request.POST
         try:
             CommentService.post_comment(
-                user=post.get('username'),
+                user_e_mail=post.get('e_mail'),
+                username=post.get('username'),
                 comment=post.get('comment'),
                 domain=sitedomain,
-                url=uri.path)
+                url=uri.path,
+                password=None)
         except PostCommentException as e:
             self.soft_error(e.error_code, e.message)
             return
@@ -72,6 +75,7 @@ class PostCommentReferrerTestSubmit(webapp2.RequestHandler):
 
     def get(self):
         env = get_enviorment()
-        tmpl = env.get_template("admin/comment_admin.html")
+        tmpl = env.get_template("submit.html")
         stream = tmpl.stream()
         stream.dump(self.response)
+

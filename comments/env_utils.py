@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from google.appengine.api import users
 
 import jinja2
 import webapp2
@@ -11,6 +12,7 @@ def create_envioronment(debug):
         loader=jinja2.PackageLoader("comments")
     )
     env.globals['debug'] = debug
+    env.globals['current_user'] = users.get_current_user
     env.globals['STATIC_URL'] = "/static"
     return env
 

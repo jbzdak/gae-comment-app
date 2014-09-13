@@ -15,6 +15,7 @@ class Commenter(ndb.Model):
 
     site = ndb.KeyProperty(kind=Site)
     username = ndb.StringProperty()
+    e_mail = ndb.StringProperty()
     password = ndb.TextProperty()
     salt = ndb.TextProperty()
 
@@ -25,7 +26,7 @@ class Comment(ndb.Model):
     COMMENT_STATE = ("DECLINED", "UNDECIDED", "APPROVED")
 
     content = ndb.TextProperty()
-    #TODO: Change username to e-mail
+    user_e_mail = ndb.StringProperty()
     username = ndb.StringProperty()
     url = ndb.StringProperty()
 

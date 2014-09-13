@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-from comments.services import CommentService
+from google.appengine.ext.ndb.key import Key
+from comments.db import Site
+from comments.services import CommentService, NoSuchSiteException, SiteService
 from google.appengine.ext import ndb
 
 import jinja2
 import webapp2
 
 from env_utils import get_enviorment
+
+from google.appengine.api import users
 
 
 class CommentAdmin(webapp2.RequestHandler):
@@ -42,3 +46,61 @@ class CommentAdmin(webapp2.RequestHandler):
         # new data when we render comment list.
         # If this persists on GAE we might need to do
         # something with it
+
+
+class AddSiteAdmin(webapp2.RequestHandler):
+
+    def get(self):
+        env = get_enviorment()
+        tmpl = env.get_template("/admin/add_site.html")
+        stream = tmpl.stream()
+        stream.dump(self.response)
+
+    def post(self):
+        post = self.request.POST
+
+        SiteService.create_site(
+            post['siteurl'], post['sitename'],
+            users.get_current_user(),
+            post.getall('admin')
+        )
+
+
+class ListSites(webapp2.RequestHandler):
+
+    def get(self):
+        ctx = {
+            "sites": SiteService.sites_by_user(
+                users.get_current_user()
+            )
+        }
+        env = get_enviorment()
+        tmpl = env.get_template("/admin/list_sites.html")
+        stream = tmpl.stream(**ctx)
+        stream.dump(self.response)
+
+
+class EditSite(webapp2.RequestHandler):
+
+    def get(self, site_key):
+        site = ndb.Key(urlsafe=site_key).get()
+        ctx = {
+            "s": site
+        }
+        env = get_enviorment()
+        tmpl = env.get_template("/admin/add_site.html")
+        stream = tmpl.stream(**ctx)
+        stream.dump(self.response)
+
+    def post(self, site_key):
+        site = ndb.Key(urlsafe=site_key).get()
+        post = self.request.POST
+        SiteService.update_site(
+            site,
+            post['siteurl'], post['sitename'],
+            users.get_current_user(),
+            post.getall('admin')
+        )
+        self.response.location = '/admin/site/list'
+        self.response.status = 303
+

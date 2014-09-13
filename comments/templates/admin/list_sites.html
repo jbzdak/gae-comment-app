@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <ul>
+    {% for s in sites %}
+        <li>
+            Site: {{ s.sitename }}. <a href="/admin/comment">Moderate</a>.
+            {% if current_user() == s.owner %}
+                <a href="/admin/site/edit/{{ s.key.urlsafe() }}">Edit site.</a>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block body %}
+    {% if s is undefined %}
+    <h1>Add site</h1>
+    {% else %}
+    <h1>Edit site</h1>
+    {% endif %}
+    <form method="post">
+        <label>Site url:
+            <input name="siteurl" value="{{ s.siteurl }}">
+        </label> <br/>
+        <label>
+            Site name:
+            <input name="sitename" value="{{ s.sitename }}">
+        </label> <br/>
+        <label>
+            Additional administratior e-mail
+            addresses
+            (you are already on this list) <br/>
+        </label>
+        {%  for ii in range(4) %}
+
+            {% if s and ii < s.admins|length  %}
+                <input name="admin" value="{{ s.admins[ii].email() }}"> <br/>
+            {% else %}
+                <input name="admin"> <br/>
+            {% endif %}
+
+        {% endfor %}
+        <input type="submit" value="Save">
+    </form>
+
+{% endblock %}

@@ -32,7 +32,10 @@ class MainHandler(webapp2.RequestHandler):
 routes = [
     ('/', MainHandler),
     ('/comment/', handlers.PostCommentRefferer),
-    ('/admin/comment', admin_handlers.CommentAdmin)
+    ('/admin/comment', admin_handlers.CommentAdmin),
+    ('/admin/site/add', admin_handlers.AddSiteAdmin),
+    (r'/admin/site/edit/([^/]+)', admin_handlers.EditSite),
+    ('/admin/site/list', admin_handlers.ListSites),
 ]
 
 if debug:
