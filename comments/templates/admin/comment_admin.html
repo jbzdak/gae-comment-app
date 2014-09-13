@@ -2,6 +2,32 @@
 
 {% block body %}
 
+    <h1>Moderate comments</h1>
+    <h2>Filter tools</h2>
+    <form>
+        <label>
+            Site:
+            <select name="site_id">
+                <option value="" {% if not selected_site %}selected{% endif %}>All sites</option>
+                {% for s in sites %}
+                    <option value="{{ s.key.urlsafe() }}"
+                            {% if selected_site == s.key.urlsafe()  %}selected{% endif %}>
+                        {{ s.sitename }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="state">
+                <option value="" {% if not selected_state %}selected{% endif %}>All states</option>
+                {% set states=[['UNDECIDED', 'Needs modeation'], ['DECLINED', 'Declined'], ['APPROVED', 'Approved']] %}
+                {% for key, label in states  %}
+                    <option value="{{ key }}" {% if key == selected_state %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+
+            </select>
+            <input type="submit" value="Sumbit">
+        </label>
+    </form>
+    <h2>Moderation</h2>
     <table>
         <thead>
         <tr>

@@ -15,11 +15,24 @@ from google.appengine.api import users
 class CommentAdmin(webapp2.RequestHandler):
 
     def get_comments(self):
-        return CommentService.filter_posts()
+        user = users.get_current_user()
+        if self.site_id:
+            site = ndb.Key(urlsafe=self.site_id).get()
+            SiteService.validate_can_moderate_site(site, user)
+            sites = [site]
+        else:
+            sites = SiteService.sites_by_user(user)
+
+        return CommentService.filter_posts(site=sites, state=self.state)
 
     def get(self):
+        self.site_id = self.request.GET.get('site_id')
+        self.state = self.request.GET.get('state')
         ctx = {
-            "comments": self.get_comments()
+            "sites": SiteService.sites_by_user(users.get_current_user()),
+            "comments": self.get_comments(),
+            "selected_site": self.site_id,
+            "selected_state": self.state
         }
         env = get_enviorment()
         tmpl = env.get_template("/admin/comment_admin.html")

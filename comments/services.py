@@ -114,6 +114,10 @@ class SiteService(object):
         s = Site(siteurl=domain, sitename=name)
         cls.update_site(s, domain, name, owner, admins)
 
+    @classmethod
+    def validate_can_moderate_site(cls, site, user):
+        if not site in SiteService.sites_by_user(users.get_current_user()):
+            raise CommenterError("401", "Not authorized")
 
     @classmethod
     def update_site(cls, site, domain, name, owner, admins):
@@ -187,8 +191,11 @@ class CommentService(object):
         query = Comment.query()
 
         if site:
-            if not isinstance(site, Site):
-                site = SiteService.site_by_domain(site, FetchCommentException)
+            if isinstance(site, (list, tuple)):
+                query = query.filter(Comment.site.IN([s.key for s in site]))
+            else:
+                if not isinstance(site, Site):
+                    site = SiteService.site_by_domain(site, FetchCommentException)
                 query = query.filter(Comment.site == site.key)
 
         if state:
