@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <form method="post" action="/comment/">
+        <label for="username">Username:</label>
+        <input name="username" id="username" type="text"/> <br/>
+        <label for="comment">Comment:</label>
+        <input name="comment" id="comment" type="text"/> <br/>
+        <input type="submit" value="Send"/>
+    </form>
+    <a href="/comment/">Check</a>
+{% endblock %}

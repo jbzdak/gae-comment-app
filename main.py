@@ -14,12 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+import Crypto
+
 import webapp2
+
+debug = os.environ.get('SERVER_SOFTWARE', '').startswith('Dev')
+
+from comments import handlers
+
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello world!')
 
-app = webapp2.WSGIApplication([
-    ('/', MainHandler)
-], debug=True)
+routes=[
+    ('/', MainHandler),
+    ('/comment/', handlers.PostCommentRefferer)
+]
+
+if debug:
+    routes.append(("/test/comment/", handlers.PostCommentReferrerTestSubmit))
+
+app = webapp2.WSGIApplication(routes=routes, debug=debug)
